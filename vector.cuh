@@ -176,12 +176,34 @@ namespace math
 		}
 
 		template <class Q>
+		__device__ __host__ Vector operator+(Q const& other)const
+		{
+			Vector<N, T> res;
+			for (uint i = 0; i < N; ++i)
+			{
+				res[i] = m_data[i] + other;
+			}
+			return res;
+		}
+
+		template <class Q>
 		__device__ __host__ Vector operator-(Vector<N, Q> const& other)const
 		{
 			Vector<N, T> res;
 			for (uint i = 0; i < N; ++i)
 			{
 				res[i] = m_data[i] - other[i];
+			}
+			return res;
+		}
+
+		template <class Q>
+		__device__ __host__ Vector operator-(Q const& other)const
+		{
+			Vector<N, T> res;
+			for (uint i = 0; i < N; ++i)
+			{
+				res[i] = m_data[i] - other;
 			}
 			return res;
 		}

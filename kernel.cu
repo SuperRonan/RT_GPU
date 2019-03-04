@@ -58,6 +58,18 @@ inline __device__ __host__ unsigned int coords_to_index(unsigned int i, unsigned
 }
 
 
+template <class integer>
+inline __device__ __host__ integer divide_up(integer num, integer denum)
+{
+	integer res = num / denum;
+	if (res * denum < num)
+	{
+		res += 1;
+	}
+	return res;
+}
+
+
 
 
 template <class floot=float>
@@ -127,17 +139,22 @@ std::vector<rt::Triangle<floot>> cornell(rt::RGBColor<floot> const& color, rt::R
 //T should either be double or float
 //there is num_elem colors in fb, and 3 x num_elem in ucfb
 template <class T>
-__global__ void convert_frame_buffer(const rt::RGBColor<T> * fb, uint8_t * ucfb, int num_elem)
+__global__ void convert_frame_buffer(const rt::RGBColor<T> * fb, uint8_t * ucfb, unsigned int w, unsigned int h)
 {
-	int i = blockIdx.x * blockDim.x + threadIdx.x;
-	uint8_t r, g, b;
-	rt::RGBColor<T> col = fb[i];
-	r = (col.red() / (col.red() + 1) * 256);
-	g = (col.green() / (col.green() + 1) * 256);
-	b = (col.blue() / (col.blue() + 1) * 256);
-	ucfb[i * 3] = r;
-	ucfb[i * 3 + 1] = g;
-	ucfb[i * 3 + 2] = b;
+	const unsigned int u = threadIdx.x + blockIdx.x * blockDim.x;
+	const unsigned int v = threadIdx.y + blockIdx.y * blockDim.y;
+	const unsigned int i = coords_to_index(u, v, w, h);
+	if (u < h & v < w)
+	{
+		uint8_t r, g, b;
+		rt::RGBColor<T> col = fb[i];
+		r = (col.red() / (col.red() + 1) * 256);
+		g = (col.green() / (col.green() + 1) * 256);
+		b = (col.blue() / (col.blue() + 1) * 256);
+		ucfb[i * 3] = r;
+		ucfb[i * 3 + 1] = g;
+		ucfb[i * 3 + 2] = b;
+	}
 }
 
 
@@ -156,18 +173,18 @@ void save_image_ppm_buffer(const uint8_t * buffer, size_t width, size_t height, 
 
 
 
-void save_image_ppm_full(uint8_t * buffer, size_t width, size_t height, std::string const& path)
+void save_image_ppm_full(const uint8_t * buffer, size_t width, size_t height, std::string const& path)
 {
 	std::stringstream file;
 	std::cout << "saving the image: " << path << std::endl;
 	file << "P3\n";
 	file << width << " " << height << "\n";
 	file << "255\n";
-	for (size_t j = 0; j < width; ++j)
+	for (size_t i = 0; i < height; ++i)
 	{
-		for (size_t i = 0; i < height; ++i)
+		for (size_t j = 0; j < width; ++j)
 		{
-			size_t index = j * width + i;
+			size_t index = i * width + j;
 			short r = buffer[index * 3];
 			short g = buffer[index * 3 + 1];
 			short b = buffer[index * 3 + 2];
@@ -182,7 +199,7 @@ void save_image_ppm_full(uint8_t * buffer, size_t width, size_t height, std::str
 
 
 
-void save_image_ppm(uint8_t * buffer, size_t width, size_t height, std::string const& path)
+void save_image_ppm(const uint8_t * buffer, size_t width, size_t height, std::string const& path)
 {
 	std::ofstream file(path);
 	std::cout << "saving the image: " << path << std::endl;
@@ -204,6 +221,27 @@ void save_image_ppm(uint8_t * buffer, size_t width, size_t height, std::string c
 	file.close();
 }
 
+
+
+template <class out_t>
+void print_image(out_t & out, const uint8_t * buffer, size_t width, size_t height)
+{
+	out << "width: " << width << "\n";
+	out << "height: " << height << "\n";
+	for (int i = 0; i < height; ++i)
+	{
+		for (int j = 0; j < width; ++j)
+		{
+			int index = i * width + j;
+			out << (int)buffer[index * 3] << " ";
+			out << (int)buffer[index * 3 + 1] << " ";
+			out << (int)buffer[index * 3 + 2] << "|";
+			++index;
+		}
+		out <<"\\"<< std::endl;
+	}
+	out << std::endl;
+}
 
 
 template <class floot>
@@ -235,21 +273,18 @@ __device__ __host__ rt::RGBColor<floot> phong(rt::FragIn<floot> const& v2f, cons
 
 __global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width, const unsigned int height, const rt::Camera<float, unsigned int> * cam, const rt::Triangle<float> * scene, const unsigned int scene_size, const rt::Light<float> * lights, const unsigned int lights_size)
 {
-	const unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int i = threadIdx.x + blockIdx.x * blockDim.x;
+	const unsigned int j = threadIdx.y + blockIdx.y * blockDim.y;
 	
-	if (index < width * height)
+	if (i < height & j < width)
 	{
-		const unsigned int i = index / width;
-		const unsigned int j = index % width;
-		//index_to_coords(index, width, height, i, j);
+		const unsigned index = coords_to_index(i, j, width, height);
 		const float v = ((float)i) / (float)height;
-		const float u = float(j) / 1000.f;
+		const float u = float(j) / float(width);
 
-		fb[index] = math::Vector2<float>(index % 1000, index / 1000);
-		return;
+		
 
 		rt::CastedRay<float> cray = cam->get_ray(u, v);
-		
 		
 		for (unsigned int triangle_id = 0; triangle_id < scene_size; ++triangle_id)
 		{
@@ -285,7 +320,7 @@ void test_ray_tracing()
 {
 	const unsigned int k = 2;
 	const unsigned int width = 1024*k;
-	const unsigned int height = 540*k;
+	const unsigned int height = 540 * k;
 	const unsigned int num_pixel = width * height;
 
 	
@@ -350,19 +385,19 @@ void test_ray_tracing()
 	cudaMalloc((void**)&d_fbf, num_pixel * sizeof(rt::RGBColorf));
 	cudaMalloc((void**)&d_fbuc, num_pixel * 3 * sizeof(uint8_t));
 
-	const size_t num_thread = 32;
-	const size_t num_block = (num_pixel / num_thread)*num_thread >= num_pixel ? num_pixel / num_thread : num_pixel / num_thread + 1;
-
+	const dim3 block_size(4, 8);
+	const dim3 grid_size = dim3(divide_up(height, block_size.x), divide_up(width, block_size.y));
+	//std::cout << grid_size.x << " "<<grid_size.y << std::endl;
 	tic();
 	
-	compute_scene << <num_block, num_thread >> > (d_fbf, width, height, d_cam, d_scene_triangles, scene_size, d_lights, lights_size);
+	compute_scene << <grid_size, block_size >> > (d_fbf, width, height, d_cam, d_scene_triangles, scene_size, d_lights, lights_size);
 	cudaDeviceSynchronize();
 	toc();
 
 
 	tic();
 
-	convert_frame_buffer << <num_block, num_thread >> > (d_fbf, d_fbuc, num_pixel);
+	convert_frame_buffer << <grid_size, block_size >> > (d_fbf, d_fbuc, width, height);
 	cudaDeviceSynchronize();
 
 	toc();
@@ -374,8 +409,10 @@ void test_ray_tracing()
 	cudaFree(d_fbuc);
 
 	tic();
-	save_image_ppm_buffer(fbuc, width, height, "ray_tracing.ppm");
+	//save_image_ppm_buffer(fbuc, width, height, "ray_tracing.ppm");
+	save_image_ppm_full(fbuc, width, height, "ray_tracing.ppm");
 	toc();
+	//print_image(std::cout, fbuc, width, height);
 
 	cudaFree(d_cam);
 	cudaFree(d_scene_triangles);

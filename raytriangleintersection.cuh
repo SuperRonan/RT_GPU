@@ -49,14 +49,14 @@ namespace rt
 				m_intersection_point = ray.sample_point(m_t);
 				math::Vector3<precision> point_from_tri = m_intersection_point - tri.get_origin();
 				m_u = (point_from_tri * tri.u_axis()) / tri.u_axis().norm2();
-				if (m_u < -epsilon() || m_u > 1+epsilon())
+				if (m_u < 0 || m_u > 1)
 				{
 					m_valid = false;
 				}
 				else
 				{
 					m_v = (point_from_tri * tri.v_axis()) / tri.v_axis().norm2();
-					m_valid = m_v >= -epsilon() && tri.is_tri * m_u + m_v <= 1+epsilon();
+					m_valid = m_v >= 0 && tri.is_tri * m_u + m_v <= 1 + tri.is_tri * epsilon();
 				}
 			}
 		}
@@ -73,10 +73,10 @@ namespace rt
 				math::Vector3<precision> next_intersection_point = ray.sample_point(next_t);
 				math::Vector3<precision> point_from_tri = next_intersection_point - tri.get_origin();
 				precision next_u = (point_from_tri * tri.u_axis()) / tri.u_axis().norm2();
-				if (next_u > -epsilon() && next_u < 1 + epsilon())
+				if (next_u > 0 && next_u < 1 )
 				{
 					precision next_v = (point_from_tri * tri.v_axis()) / tri.v_axis().norm2();
-					if (next_v > -epsilon() && tri.is_tri * next_u + next_v < 1 + epsilon())
+					if (next_v > 0 && tri.is_tri * next_u + next_v < 1 + tri.is_tri * epsilon())
 					{
 						//absorb the next intersection
 						m_valid = true;
