@@ -13,6 +13,7 @@
 #include "include_directory.cuh"
 #include "thrust/device_vector.h"
 
+#include "visualizer.h"
 
 
 
@@ -318,13 +319,13 @@ using Vector3f = math::Vector3f;
 
 void test_ray_tracing()
 {
-	const unsigned int k = 2;
+	const unsigned int k = 1;
 	const unsigned int width = 1024*k;
 	const unsigned int height = 540 * k;
 	const unsigned int num_pixel = width * height;
 
 	
-	
+	Visualizer visu(width, height);
 
 	rt::Camera<float, unsigned int> cam(
 		Vector3f::make_vector(2, -4, 1),//position
@@ -408,11 +409,16 @@ void test_ray_tracing()
 	cudaFree(d_fbf);
 	cudaFree(d_fbuc);
 
+	/*
 	tic();
 	//save_image_ppm_buffer(fbuc, width, height, "ray_tracing.ppm");
 	save_image_ppm_full(fbuc, width, height, "ray_tracing.ppm");
 	toc();
 	//print_image(std::cout, fbuc, width, height);
+	//*/
+	visu.blit_device_buffer(d_fbuc);
+	visu.update();
+	visu.waitKeyPressed();
 
 	cudaFree(d_cam);
 	cudaFree(d_scene_triangles);
