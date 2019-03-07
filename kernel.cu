@@ -152,9 +152,10 @@ __global__ void convert_frame_buffer(const rt::RGBColor<T> * fb, uint8_t * ucfb,
 		r = (col.red() / (col.red() + 1) * 256);
 		g = (col.green() / (col.green() + 1) * 256);
 		b = (col.blue() / (col.blue() + 1) * 256);
-		ucfb[i * 3] = r;
-		ucfb[i * 3 + 1] = g;
-		ucfb[i * 3 + 2] = b;
+		ucfb[i * 4] = r;
+		ucfb[i * 4 + 1] = g;
+		ucfb[i * 4 + 2] = b;
+		ucfb[i * 4 + 3] = 255;
 	}
 }
 
@@ -378,13 +379,13 @@ void test_ray_tracing()
 
 
 	uint8_t * fbuc;
-	fbuc = (uint8_t *)malloc(num_pixel * 3 * sizeof(uint8_t));
+	fbuc = (uint8_t *)malloc(num_pixel * 4 * sizeof(uint8_t));
 
 	rt::RGBColorf * d_fbf;
 	uint8_t * d_fbuc;
 
 	cudaMalloc((void**)&d_fbf, num_pixel * sizeof(rt::RGBColorf));
-	cudaMalloc((void**)&d_fbuc, num_pixel * 3 * sizeof(uint8_t));
+	cudaMalloc((void**)&d_fbuc, num_pixel * 4 * sizeof(uint8_t));
 
 	const dim3 block_size(4, 8);
 	const dim3 grid_size = dim3(divide_up(height, block_size.x), divide_up(width, block_size.y));
@@ -403,11 +404,15 @@ void test_ray_tracing()
 
 	toc();
 
-	cudaMemcpy(fbuc, d_fbuc, num_pixel * 3 * sizeof(uint8_t), cudaMemcpyDeviceToHost);
+	cudaMemcpy(fbuc, d_fbuc, num_pixel * 4 * sizeof(uint8_t), cudaMemcpyDeviceToHost);
 
 
-	cudaFree(d_fbf);
-	cudaFree(d_fbuc);
+
+	visu.blit_device_buffer(d_fbuc);
+	visu.update();
+	visu.waitKeyPressed();
+
+	
 
 	/*
 	tic();
@@ -416,13 +421,13 @@ void test_ray_tracing()
 	toc();
 	//print_image(std::cout, fbuc, width, height);
 	//*/
-	visu.blit_device_buffer(d_fbuc);
-	visu.update();
-	visu.waitKeyPressed();
+	
 
 	cudaFree(d_cam);
 	cudaFree(d_scene_triangles);
 	cudaFree(d_lights);
+	cudaFree(d_fbf);
+	cudaFree(d_fbuc);
 
 	cudaDeviceReset();
 

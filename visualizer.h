@@ -76,7 +76,7 @@ public:
 		cudaError_t error = cudaMemcpy(m_window_surface->pixels, d_fb, 3 * m_window_height * m_window_width * sizeof(uint8_t), cudaMemcpyDeviceToHost);
 		if (error != cudaSuccess)
 		{
-			std::cerr << "Error, could not blit the buffer!" << std::endl;
+			std::cerr << "Error, could not blit the frame buffer!" << std::endl;
 			std::cerr << error << std::endl;
 		}
 	}
