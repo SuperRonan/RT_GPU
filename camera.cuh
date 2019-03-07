@@ -10,7 +10,7 @@ namespace rt
 	template <class precision=float, class uint=unsigned int>
 	class Camera
 	{
-	protected:
+	public:
 
 		using Vector3p = math::Vector3<precision>;
 

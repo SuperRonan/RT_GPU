@@ -13,7 +13,7 @@
 #include "include_directory.cuh"
 #include "thrust/device_vector.h"
 
-#include "visualizer.h"
+#include "visualizer.cuh"
 
 
 
@@ -284,8 +284,6 @@ __global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width
 		const float v = ((float)i) / (float)height;
 		const float u = float(j) / float(width);
 
-		
-
 		rt::CastedRay<float> cray = cam->get_ray(u, v);
 		
 		for (unsigned int triangle_id = 0; triangle_id < scene_size; ++triangle_id)
@@ -297,7 +295,8 @@ __global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width
 		rt::RGBColorf & pixel = fb[index];
 		if (inter.valid())
 		{
-			//pixel = rt::RGBColorf(inter.u(), 0.1f, inter.v());
+			pixel = rt::RGBColorf(inter.u(), 0.1f, inter.v());
+			return;
 			
 			rt::FragIn<float> fi(cray, inter, { u, v });
 			pixel = phong(fi, lights, lights_size);
@@ -313,7 +312,93 @@ __global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width
 }
 
 
-
+void update(bool * keys)
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		if (event.type == SDL_KEYDOWN)
+		{
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_UP:
+				keys[0] = 1;
+				break;
+			case SDLK_DOWN:
+				keys[1] = 1;
+				break;
+			case SDLK_LEFT:
+				keys[2] = 1;
+				break;
+			case SDLK_RIGHT:
+				keys[3] = 1;
+				break;
+			case SDLK_z:
+				keys[4] = 1;
+				break;
+			case SDLK_s:
+				keys[5] = 1;
+				break;
+			case SDLK_d:
+				keys[6] = 1;
+				break;
+			case SDLK_q:
+				keys[7] = 1;
+				break;
+			case SDLK_SPACE:
+				keys[8] = 1;
+				break;
+			case SDLK_LCTRL:
+				keys[9] = 1;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (event.type == SDL_KEYUP)
+		{
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_UP:
+				keys[0] = 0;
+				break;
+			case SDLK_DOWN:
+				keys[1] = 0;
+				break;
+			case SDLK_LEFT:
+				keys[2] = 0;
+				break;
+			case SDLK_RIGHT:
+				keys[3] = 0;
+				break;
+			case SDLK_z:
+				keys[4] = 0;
+				break;
+			case SDLK_s:
+				keys[5] = 0;
+				break;
+			case SDLK_d:
+				keys[6] = 0;
+				break;
+			case SDLK_q:
+				keys[7] = 0;
+				break;
+			case SDLK_SPACE:
+				keys[8] = 0;
+				break;
+			case SDLK_LCTRL:
+				keys[9] = 0;
+				break;
+			default:
+				break;
+			}
+		}
+		else if (event.type == SDL_QUIT)
+		{
+			exit(0);
+		}
+	}
+}
 
 
 using Vector3f = math::Vector3f;
@@ -321,10 +406,13 @@ using Vector3f = math::Vector3f;
 void test_ray_tracing()
 {
 	const unsigned int k = 1;
-	const unsigned int width = 1024*k;
-	const unsigned int height = 540 * k;
+	const unsigned int width = 1600;// 1024 * k;
+	const unsigned int height = 900;// 540 * k;
 	const unsigned int num_pixel = width * height;
 
+	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+
+	bool keys[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	
 	Visualizer visu(width, height);
 
@@ -382,52 +470,121 @@ void test_ray_tracing()
 	fbuc = (uint8_t *)malloc(num_pixel * 4 * sizeof(uint8_t));
 
 	rt::RGBColorf * d_fbf;
-	uint8_t * d_fbuc;
 
 	cudaMalloc((void**)&d_fbf, num_pixel * sizeof(rt::RGBColorf));
-	cudaMalloc((void**)&d_fbuc, num_pixel * 4 * sizeof(uint8_t));
 
 	const dim3 block_size(4, 8);
 	const dim3 grid_size = dim3(divide_up(height, block_size.x), divide_up(width, block_size.y));
 	//std::cout << grid_size.x << " "<<grid_size.y << std::endl;
-	tic();
 	
-	compute_scene << <grid_size, block_size >> > (d_fbf, width, height, d_cam, d_scene_triangles, scene_size, d_lights, lights_size);
-	cudaDeviceSynchronize();
-	toc();
+	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+
+	Vector3f dir_sphere = math::spherical_coordianates(cam.m_front);
+	float forward, upward, rightward, inclination, azimuth;
+	const float speed = 2;
+	const float angle_speed = 2;
+	inclination = dir_sphere[1];
+	azimuth = dir_sphere[2];
+	while (1)
+	{
+		update(keys);
+
+		t2 = std::chrono::high_resolution_clock::now();
+
+		std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::duration<float>>(t2 - t1);
+
+		float dt = time_span.count();
+		t1 = t2;
+
+		forward = upward = rightward = 0;
 
 
-	tic();
+		if (keys[0])
+		{
+			inclination -= angle_speed * dt;
+		}
+		if (keys[1])
+		{
+			inclination += angle_speed * dt;
+		}
+		if (keys[2])
+		{
+			azimuth += angle_speed * dt;
+		}
+		if (keys[3])
+		{
+			azimuth -= angle_speed * dt;
+		}
 
-	convert_frame_buffer << <grid_size, block_size >> > (d_fbf, d_fbuc, width, height);
-	cudaDeviceSynchronize();
+		if (keys[4])
+		{
+			forward += speed * dt;
+		}
+		if (keys[5])
+		{
+			forward -= speed * dt;
+		}
+		if (keys[6])
+		{
+			rightward += speed * dt;
+		}
+		if (keys[7])
+		{
+			rightward -= speed * dt;
+		}
+		if (keys[8])
+		{
+			upward += speed * dt;
+		}
+		if (keys[9])
+		{
+			upward -= speed * dt;
+		}
 
-	toc();
+		cam.m_position += rightward * cam.m_right + forward * cam.m_front + upward * cam.m_up;
+		
+		if (inclination > 3.1415)
+		{
 
-	cudaMemcpy(fbuc, d_fbuc, num_pixel * 4 * sizeof(uint8_t), cudaMemcpyDeviceToHost);
+			inclination = 3.1415 - 0.00000001;
+		}
+		else if (inclination < 0)
+		{
 
+			inclination = 0.00000001;
+		}
 
+		const float sin_inc = sin(inclination);
+		const float cos_inc = cos(inclination);
+		
+		
+		
 
-	visu.blit_device_buffer(d_fbuc);
-	visu.update();
+		////////////////////////
+		//send updated camera to device
+		cudaMemcpy(d_cam, &cam, sizeof(rt::Camera<float, unsigned int>), cudaMemcpyHostToDevice);
+
+		compute_scene << <grid_size, block_size >> > (d_fbf, width, height, d_cam, d_scene_triangles, scene_size, d_lights, lights_size);
+		cudaDeviceSynchronize();
+
+		visu.blit(d_fbf, width, height, block_size, grid_size);
+		visu.update();
+		std::cout << 1.f / dt << std::endl;
+	}
+	
+	
+	
 	visu.waitKeyPressed();
 
 	
 
-	/*
-	tic();
-	//save_image_ppm_buffer(fbuc, width, height, "ray_tracing.ppm");
-	save_image_ppm_full(fbuc, width, height, "ray_tracing.ppm");
-	toc();
-	//print_image(std::cout, fbuc, width, height);
-	//*/
+
 	
 
 	cudaFree(d_cam);
 	cudaFree(d_scene_triangles);
 	cudaFree(d_lights);
 	cudaFree(d_fbf);
-	cudaFree(d_fbuc);
 
 	cudaDeviceReset();
 

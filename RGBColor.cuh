@@ -120,6 +120,16 @@ namespace rt
 		}
 
 		template <class Q>
+		__device__ __host__ RGBColor operator+(Q const& other)const
+		{
+			RGBColor res = *this;
+			res[0] += other;
+			res[1] += other;
+			res[2] += other;
+			return res;
+		}
+
+		template <class Q>
 		__device__ __host__ RGBColor operator-(RGBColor<Q> const& other)const
 		{
 			RGBColor res = *this;
@@ -128,6 +138,17 @@ namespace rt
 			res[2] -= other[2];
 			return res;
 		}
+
+		template <class Q>
+		__device__ __host__ RGBColor operator-(Q const& other)const
+		{
+			RGBColor res = *this;
+			res[0] -= other;
+			res[1] -= other;
+			res[2] -= other;
+			return res;
+		}
+
 
 		template <class Q>
 		__device__ __host__ RGBColor operator*(RGBColor<Q> const& other)const
@@ -160,6 +181,16 @@ namespace rt
 		}
 
 		template <class Q>
+		__device__ __host__ RGBColor operator/(RGBColor<Q> const& other)const
+		{
+			RGBColor res = *this;
+			res[0] /= other[0];
+			res[1] /= other[1];
+			res[2] /= other[2];
+			return res;
+		}
+
+		template <class Q>
 		__device__ __host__ RGBColor & operator+=(RGBColor<Q> const& other)
 		{
 			m_data[0] += other[0];
@@ -169,11 +200,29 @@ namespace rt
 		}
 
 		template <class Q>
+		__device__ __host__ RGBColor & operator+=(Q const& other)
+		{
+			m_data[0] += other;
+			m_data[1] += other;
+			m_data[2] += other;
+			return *this;
+		}
+
+		template <class Q>
 		__device__ __host__ RGBColor & operator-=(RGBColor<Q> const& other)
 		{
 			m_data[0] -= other[0];
 			m_data[1] -= other[1];
 			m_data[2] -= other[2];
+			return *this;
+		}
+
+		template <class Q>
+		__device__ __host__ RGBColor & operator-=(Q const& other)
+		{
+			m_data[0] -= other;
+			m_data[1] -= other;
+			m_data[2] -= other;
 			return *this;
 		}
 
@@ -201,6 +250,15 @@ namespace rt
 			m_data[0] /= q;
 			m_data[1] /= q;
 			m_data[2] /= q;
+			return *this;
+		}
+
+		template <class Q>
+		__device__ __host__ RGBColor & operator/=(RGBColor<Q> other)
+		{
+			m_data[0] /= other[0];
+			m_data[1] /= other[1];
+			m_data[2] /= other[2];
 			return *this;
 		}
 

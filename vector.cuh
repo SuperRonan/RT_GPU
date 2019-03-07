@@ -430,5 +430,38 @@ namespace math
 		}
 		return res;
 	}
+
+
+	template <class doble>
+	__device__ __host__ doble my_atan(doble y, doble x)
+	{
+		if (x == 0.)
+		{
+			return 1.5707963267948966192313216916398;
+		}
+		doble res = atan(y / x);
+
+		if (x < 0)
+		{
+			res -= 3.1415926535897932384626433832795;
+		}
+
+		return res;
+	}
+
+	template <class floot>
+	__device__ __host__ Vector3<floot> spherical_coordianates(Vector3<floot> const& vec)
+	{
+		Vector3<floot> res;
+
+		res[0] = vec.norm();
+
+		res[1] = acos(vec[2] / res[0]);//theta: inclination
+
+		//maybe check if x != 0
+		res[2] = my_atan(vec[1], vec[0]);//phi: azimuth
+
+		return res;
+	}
 }
 
