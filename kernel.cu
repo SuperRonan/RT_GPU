@@ -260,7 +260,7 @@ __device__ __host__ rt::RGBColor<floot> phong(rt::FragIn<floot> const& v2f, cons
 
 	for (unsigned int i = 0; i < lights_size; ++i)
 	{
-		math::Vector3<floot> to_light = lights[i].to_light(position);
+		const math::Vector3<floot> to_light = lights[i].to_light(position);
 		math::Vector3<floot> to_light_norm = to_light;
 		to_light_norm.set_normalized();
 
@@ -295,8 +295,8 @@ __global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width
 		rt::RGBColorf & pixel = fb[index];
 		if (inter.valid())
 		{
-			pixel = rt::RGBColorf(inter.u(), 0.1f, inter.v());
-			return;
+			//pixel = rt::RGBColorf(inter.u(), 0.1f, inter.v());
+			//return;
 			
 			rt::FragIn<float> fi(cray, inter, { u, v });
 			pixel = phong(fi, lights, lights_size);
@@ -458,7 +458,7 @@ void test_ray_tracing()
 	unsigned int lights_size = 1;
 	rt::Light<float> * lights = new rt::Light<float>[lights_size];
 
-	lights[0] = rt::Light<float>(math::Vector3f::make_vector(0, -1, 3), rt::RGBColorf(10, 10, 0));
+	lights[0] = rt::Light<float>(math::Vector3f::make_vector(-3, -1, 3), rt::RGBColorf(10, 10, 0));
 
 	rt::Light<float> * d_lights;
 
