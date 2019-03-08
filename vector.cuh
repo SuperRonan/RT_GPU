@@ -463,5 +463,40 @@ namespace math
 
 		return res;
 	}
+
+
+	template <class floot>
+	__device__ __host__ Vector3<floot> rotateX(Vector3<floot> const& vec, const floot angle)
+	{
+		Vector3<floot> res;
+		res[0] = vec[0];
+		floot cs = cos(angle), sn = sin(angle);
+		res[1] = cs * vec[1] - sn * vec[2];
+		res[2] = sn * vec[1] + cs * vec[2];
+		return res;
+	}
+
+	template <class floot>
+	__device__ __host__ Vector3<floot> rotateZ(Vector3<floot> const& vec, const floot angle)
+	{
+		Vector3<floot> res;
+		res[2] = vec[2];
+		floot cs = cos(angle), sn = sin(angle);
+		res[0] = cs * vec[0] - sn * vec[1];
+		res[1] = sn * vec[0] + cs * vec[1];
+		return res;
+	}
+
+	template <class floot>
+	__device__ __host__ Vector3<floot> rotate(Vector3<floot> const& vec, Vector3<floot> const& axis, floot angle)
+	{
+		//TODO
+	}
+
+	template <class floot>
+	__device__ __host__ Vector3<floot> make_sphere_direction(floot inclination, floot azimuth, floot radius=1)
+	{
+		return Vector3<floot>(radius * sin(inclination) * cos(azimuth), radius * sin(inclination) * sin(azimuth), radius * cos(inclination));
+	}
 }
 

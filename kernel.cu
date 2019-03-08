@@ -554,8 +554,7 @@ void test_ray_tracing()
 			inclination = 0.00000001;
 		}
 
-		const float sin_inc = sin(inclination);
-		const float cos_inc = cos(inclination);
+		cam.set_direction(math::make_sphere_direction(inclination, azimuth));
 		
 		
 		
