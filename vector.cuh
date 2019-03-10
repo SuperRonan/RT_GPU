@@ -437,13 +437,13 @@ namespace math
 	{
 		if (x == 0.)
 		{
-			return 1.5707963267948966192313216916398;
+			return HALF_PI;
 		}
 		doble res = atan(y / x);
 
 		if (x < 0)
 		{
-			res -= 3.1415926535897932384626433832795;
+			res -= PI;
 		}
 
 		return res;
