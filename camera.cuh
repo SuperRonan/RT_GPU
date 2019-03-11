@@ -4,7 +4,7 @@
 #include "cuda_runtime.h"
 #include "vector.cuh"
 #include "ray.cuh"
-#include "constant.cuh"
+#include "constant.h"
 #include <iostream>
 
 namespace rt
