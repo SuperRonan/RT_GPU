@@ -4,6 +4,7 @@
 #include "cuda_runtime.h"
 #include <cassert>
 #include <algorithm>
+#include "constant.h"
 
 namespace math
 {
