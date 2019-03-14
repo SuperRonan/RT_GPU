@@ -265,7 +265,7 @@ __device__ __host__ rt::RGBColor<floot> phong(rt::FragIn<floot> const& v2f, cons
 		to_light_norm.set_normalized();
 
 		rt::RGBColor<floot> light_contribution = lights[i].contribution(position);
-		floot diffuse_factor = max((to_light_norm * normal), 0);
+		floot diffuse_factor = max(abs(to_light_norm * normal), 0);
 		res += light_contribution * diffuse * diffuse_factor;
 	}
 	return res;
@@ -295,8 +295,8 @@ __global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width
 		rt::RGBColorf & pixel = fb[index];
 		if (inter.valid())
 		{
-			pixel = rt::RGBColorf(inter.u(), 0.1f, inter.v());
-			return;
+			//pixel = rt::RGBColorf(inter.u(), 0.1f, inter.v());
+			//return;
 			
 			rt::FragIn<float> fi(cray, inter, { u, v });
 			pixel = phong(fi, lights, lights_size);
@@ -406,8 +406,8 @@ using Vector3f = math::Vector3f;
 void test_ray_tracing()
 {
 	const unsigned int k = 1;
-	const unsigned int width = 1600;// 1024 * k;
-	const unsigned int height = 900;// 540 * k;
+	const unsigned int width = 1024 * k;
+	const unsigned int height = 540 * k;
 	const unsigned int num_pixel = width * height;
 
 	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
