@@ -4,6 +4,8 @@
 #include "cuda_runtime.h"
 #include "vector.cuh"
 #include "ray.cuh"
+#include "constant.h"
+#include <iostream>
 
 namespace rt
 {
@@ -59,6 +61,15 @@ namespace rt
 			Vector3p ray_dir = m_front * m_plane_dist + m_right * m_plane_width * (u - 0.5) - m_up * m_plane_height * (v - 0.5);
 			ray_dir.set_normalized();
 			return Ray<precision>(m_position, ray_dir);
+		}
+
+		__device__ __host__ void set_direction(Vector3p const& dir)
+		{
+			m_front = dir;
+			m_right = math::rotateZ<precision>(m_front, -HALF_PI);
+			m_right[2] = 0;
+			m_right.set_normalized();
+			m_up = m_right ^ m_front;
 		}
 
 	};

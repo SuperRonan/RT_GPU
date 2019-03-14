@@ -33,7 +33,7 @@ namespace rt
 
 
 		__device__ __host__ FragIn(rt::Ray<floot> const& ray, rt::RayTriangleIntersection<floot> const& inter, math::Vector2<floot> const& screen_pos):
-			facing(inter.triangle()->facing(to_view_world)),
+			facing(inter.triangle()->facing(-ray.direction())),
 			inter_point_world(inter.intersection_point()),
 			source_point_world(ray.source),
 			normal_world(inter.triangle()->get_normal(facing)),

@@ -14,7 +14,7 @@
 #include "thrust/device_vector.h"
 
 #include "visualizer.cuh"
-
+#include <SDL.h>
 
 
 
@@ -260,7 +260,7 @@ __device__ __host__ rt::RGBColor<floot> phong(rt::FragIn<floot> const& v2f, cons
 
 	for (unsigned int i = 0; i < lights_size; ++i)
 	{
-		math::Vector3<floot> to_light = lights[i].to_light(position);
+		const math::Vector3<floot> to_light = lights[i].to_light(position);
 		math::Vector3<floot> to_light_norm = to_light;
 		to_light_norm.set_normalized();
 
@@ -268,6 +268,17 @@ __device__ __host__ rt::RGBColor<floot> phong(rt::FragIn<floot> const& v2f, cons
 		floot diffuse_factor = max(abs(to_light_norm * normal), 0);
 		res += light_contribution * diffuse * diffuse_factor;
 	}
+	return res;
+}
+
+
+
+template <class floot>
+__device__ __host__ rt::RGBColor<floot> send_ray(rt::Ray<floot> const& ray, const unsigned int max_depth, const unsigned int depth = 0)
+{
+	rt::CastedRay<floot> cray = ray;
+	rt::RGBColor<floot> res = 0;
+
 	return res;
 }
 
@@ -458,7 +469,7 @@ void test_ray_tracing()
 	unsigned int lights_size = 1;
 	rt::Light<float> * lights = new rt::Light<float>[lights_size];
 
-	lights[0] = rt::Light<float>(math::Vector3f::make_vector(0, -1, 3), rt::RGBColorf(10, 10, 0));
+	lights[0] = rt::Light<float>(math::Vector3f::make_vector(-3, -1, 3), rt::RGBColorf(10, 10, 0));
 
 	rt::Light<float> * d_lights;
 
@@ -554,8 +565,7 @@ void test_ray_tracing()
 			inclination = 0.00000001;
 		}
 
-		const float sin_inc = sin(inclination);
-		const float cos_inc = cos(inclination);
+		cam.set_direction(math::make_sphere_direction(inclination, azimuth));
 		
 		
 		
@@ -593,151 +603,6 @@ void test_ray_tracing()
 	delete[] lights;
 
 }
-
-/*
-void test_ray_tracing_window()
-{
-
-	const unsigned int width = 4096 / 4;
-	const unsigned int height = 2160 / 4;
-	const unsigned int num_pixel = width * height;
-
-	SDL_Window * window = nullptr;
-	SDL_Event event;
-	bool over = false;
-
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-		std::cerr << "Error: cannot initialise SDL" << std::endl;
-		std::cerr << SDL_GetError << std::endl;
-		SDL_Quit();
-		return;
-	}
-
-	window = SDL_CreateWindow("CUDA Ray Tracing", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
-
-	if (window == nullptr)
-	{
-		std::cerr << "Error: cannot create the window" << std::endl;
-		std::cerr << SDL_GetError << std::endl;
-		SDL_Quit();
-		return;
-		return;
-	}
-	
-
-
-	rt::Camera<float, unsigned int> cam(
-		Vector3f::make_vector(2, -4, 1),//position
-		Vector3f::make_vector(0, 1, 0),//front
-		Vector3f::make_vector(1, 0, 0),//right
-		Vector3f::make_vector(0, 0, 1),//up
-		1.0, (float)width / (float)height, 1, width, height);
-
-
-	std::vector<rt::Triangle<float>> scene_triangles_vec;
-	scene_triangles_vec = cornell(rt::RGBColorf(0.5), rt::RGBColorf(1, 0, 0), rt::RGBColorf(0, 1, 0));
-
-	const unsigned int scene_size = scene_triangles_vec.size();
-	rt::Triangle<float> * scene_triangles_tab = new rt::Triangle<float>[scene_size];
-	std::copy(scene_triangles_vec.cbegin(), scene_triangles_vec.cend(), scene_triangles_tab);
-	scene_triangles_vec.clear();
-
-
-	rt::Camera<float, unsigned int> * d_cam;
-	rt::Triangle<float> * d_scene_triangles;
-
-
-
-	cudaMalloc((void**)&d_cam, sizeof(rt::Camera<float, unsigned int>));
-	cudaMalloc((void**)&d_scene_triangles, scene_size * sizeof(rt::Triangle<float>));
-
-	cudaMemcpy(d_cam, &cam, sizeof(rt::Camera<float, unsigned int>), cudaMemcpyHostToDevice);
-	cudaMemcpy(d_scene_triangles, scene_triangles_tab, scene_size * sizeof(rt::Triangle<float>), cudaMemcpyHostToDevice);
-
-
-	unsigned int lights_size = 1;
-	math::Vector3f * lights = new math::Vector3f[lights_size];
-	lights[0] = math::Vector3f::make_vector(0, -1, 3);
-
-	math::Vector3f * d_lights;
-
-	cudaMalloc((void**)&d_lights, lights_size * sizeof(math::Vector3f));
-	cudaMemcpy(d_lights, lights, lights_size * sizeof(math::Vector3f), cudaMemcpyHostToDevice);
-
-
-	uint8_t * fbuc;
-	fbuc = (uint8_t *)malloc(num_pixel * 3 * sizeof(uint8_t));
-
-	rt::RGBColorf * d_fbf;
-	uint8_t * d_fbuc;
-
-	cudaMalloc((void**)&d_fbf, num_pixel * sizeof(rt::RGBColorf));
-	cudaMalloc((void**)&d_fbuc, num_pixel * 3 * sizeof(uint8_t));
-
-	const size_t num_thread = 32;
-	const size_t num_block = (num_pixel / num_thread)*num_thread >= num_pixel ? num_pixel / num_thread : num_pixel / num_thread + 1;
-
-	tic();
-
-	compute_scene << <num_block, num_thread >> > (d_fbf, width, height, d_cam, d_scene_triangles, scene_size, d_lights, lights_size);
-	cudaDeviceSynchronize();
-	toc();
-
-
-	tic();
-
-	convert_frame_buffer << <num_block, num_thread >> > (d_fbf, d_fbuc, num_pixel);
-	cudaDeviceSynchronize();
-
-	toc();
-
-	cudaMemcpy(fbuc, d_fbuc, num_pixel * 3 * sizeof(uint8_t), cudaMemcpyDeviceToHost);
-
-
-	cudaFree(d_fbf);
-	cudaFree(d_fbuc);
-
-
-
-	std::thread t(save_image_ppm, fbuc, width, height, "ray_tracing.ppm");
-	
-	SDL_Texture * tex;
-	
-
-	
-	while (!over || SDL_PollEvent(&event))
-	{
-		switch (event.type)
-		{
-		case SDL_QUIT:
-			over = true;
-			break;
-		default:
-			break;
-		}
-	}
-
-	t.join();
-
-	cudaFree(d_cam);
-	cudaFree(d_scene_triangles);
-
-	cudaDeviceReset();
-
-	delete[] scene_triangles_tab;
-	delete[] fbuc;
-
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-
-}
-
-*/
-
-
-
-
 
 
 int main(int argc, char ** argv)

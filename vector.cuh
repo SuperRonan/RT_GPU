@@ -4,6 +4,7 @@
 #include "cuda_runtime.h"
 #include <cassert>
 #include <algorithm>
+#include "constant.h"
 
 namespace math
 {
@@ -437,13 +438,13 @@ namespace math
 	{
 		if (x == 0.)
 		{
-			return 1.5707963267948966192313216916398;
+			return HALF_PI;
 		}
 		doble res = atan(y / x);
 
 		if (x < 0)
 		{
-			res -= 3.1415926535897932384626433832795;
+			res -= PI;
 		}
 
 		return res;
@@ -462,6 +463,41 @@ namespace math
 		res[2] = my_atan(vec[1], vec[0]);//phi: azimuth
 
 		return res;
+	}
+
+
+	template <class floot>
+	__device__ __host__ Vector3<floot> rotateX(Vector3<floot> const& vec, const floot angle)
+	{
+		Vector3<floot> res;
+		res[0] = vec[0];
+		floot cs = cos(angle), sn = sin(angle);
+		res[1] = cs * vec[1] - sn * vec[2];
+		res[2] = sn * vec[1] + cs * vec[2];
+		return res;
+	}
+
+	template <class floot>
+	__device__ __host__ Vector3<floot> rotateZ(Vector3<floot> const& vec, const floot angle)
+	{
+		Vector3<floot> res;
+		res[2] = vec[2];
+		floot cs = cos(angle), sn = sin(angle);
+		res[0] = cs * vec[0] - sn * vec[1];
+		res[1] = sn * vec[0] + cs * vec[1];
+		return res;
+	}
+
+	template <class floot>
+	__device__ __host__ Vector3<floot> rotate(Vector3<floot> const& vec, Vector3<floot> const& axis, floot angle)
+	{
+		//TODO
+	}
+
+	template <class floot>
+	__device__ __host__ Vector3<floot> make_sphere_direction(floot inclination, floot azimuth, floot radius=1)
+	{
+		return Vector3<floot>(radius * sin(inclination) * cos(azimuth), radius * sin(inclination) * sin(azimuth), radius * cos(inclination));
 	}
 }
 
