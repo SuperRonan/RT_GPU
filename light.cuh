@@ -59,7 +59,10 @@ namespace rt
 		}
 		
 
-
+		__device__ __host__ Vector3f const& position()const
+		{
+			return m_position;
+		}
 		
 
 	};

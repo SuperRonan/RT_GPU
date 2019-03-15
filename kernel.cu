@@ -246,8 +246,18 @@ void print_image(out_t & out, const uint8_t * buffer, size_t width, size_t heigh
 }
 
 
+__device__ __host__ bool intersect(const rt::Triangle<float> * scene, const unsigned int scene_size, rt::CastedRay<float>& cray)
+{
+	for (unsigned int triangle_id = 0; triangle_id < scene_size; ++triangle_id)
+	{
+		cray.intersect(scene[triangle_id]);
+	}
+	return cray.intersection().valid();
+}
+
+
 template <class floot>
-__device__ __host__ rt::RGBColor<floot> phong(rt::FragIn<floot> const& v2f, const rt::Light<floot> * lights, unsigned int lights_size, rt::RGBColor<floot> const& ambient=rt::RGBColor<floot>(0))
+__device__ __host__ rt::RGBColor<floot> phong(rt::FragIn<floot> const& v2f, const rt::Triangle<float> * scene, const unsigned int scene_size, const rt::Light<floot> * lights, unsigned int lights_size, rt::RGBColor<floot> const& ambient=rt::RGBColor<floot>(0))
 {
 	//return v2f.screen_uv;
 	rt::RGBColor<floot> res = ambient;
@@ -260,13 +270,22 @@ __device__ __host__ rt::RGBColor<floot> phong(rt::FragIn<floot> const& v2f, cons
 
 	for (unsigned int i = 0; i < lights_size; ++i)
 	{
+		
+
+
 		const math::Vector3<floot> to_light = lights[i].to_light(position);
 		math::Vector3<floot> to_light_norm = to_light;
+
 		to_light_norm.set_normalized();
 
-		rt::RGBColor<floot> light_contribution = lights[i].contribution(position);
-		floot diffuse_factor = max(abs(to_light_norm * normal), 0);
-		res += light_contribution * diffuse * diffuse_factor;
+		rt::CastedRay<float> cray(lights[i].position(), -1 * to_light_norm);
+
+		intersect(scene, scene_size, cray);
+		if ((cray.intersection().intersection_point() - position).norm2() < 0.002) {
+			rt::RGBColor<floot> light_contribution = lights[i].contribution(position);
+			floot diffuse_factor = max((to_light_norm * normal), 0);
+			res += light_contribution * diffuse * diffuse_factor;
+		}
 	}
 	return res;
 }
@@ -297,10 +316,7 @@ __global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width
 
 		rt::CastedRay<float> cray = cam->get_ray(u, v);
 		
-		for (unsigned int triangle_id = 0; triangle_id < scene_size; ++triangle_id)
-		{
-			cray.intersect(scene[triangle_id]);
-		}
+		intersect(scene, scene_size, cray);
 
 		rt::RayTriangleIntersection<float> const& inter = cray.intersection();
 		rt::RGBColorf & pixel = fb[index];
@@ -308,9 +324,9 @@ __global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width
 		{
 			//pixel = rt::RGBColorf(inter.u(), 0.1f, inter.v());
 			//return;
-			
+
 			rt::FragIn<float> fi(cray, inter, { u, v });
-			pixel = phong(fi, lights, lights_size);
+			pixel = phong(fi, scene, scene_size, lights, lights_size);
 			
 		}
 		else

@@ -4,33 +4,62 @@
   Compiling CUDA source file kernel.cu...
   
   D:\Workspace\SI\RT_CUDA\RT_CUDA>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin\nvcc.exe" -gencode=arch=compute_35,code=\"sm_35,compute_35\" --use-local-env -ccbin "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x64" -x cu  -I"D:\Logiciels\SDL2-2.0.9\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\include"     --keep-dir x64\Release -maxrregcount=0  --machine 64 --compile -cudart static     -DWIN32 -DWIN64 -DNDEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Fdx64\Release\vc141.pdb /FS /Zi  /MD " -o x64\Release\kernel.cu.obj "D:\Workspace\SI\RT_CUDA\RT_CUDA\kernel.cu" 
-d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(424): warning : template parameter "T" may not be used in an elaborated type specifier
-D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(577): warning : statement is unreachable
+d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(425): warning : template parameter "T" may not be used in an elaborated type specifier
+D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(603): warning : statement is unreachable
 d:\workspace\si\rt_cuda\rt_cuda\raytriangleintersection.cuh(71): warning : calling a constexpr __host__ function("epsilon") from a __host__ __device__ function("update") is not allowed. The experimental flag '--expt-relaxed-constexpr' can be used to allow this.
 d:\workspace\si\rt_cuda\rt_cuda\raytriangleintersection.cuh(79): warning : calling a constexpr __host__ function("epsilon") from a __host__ __device__ function("update") is not allowed. The experimental flag '--expt-relaxed-constexpr' can be used to allow this.
-D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(256): warning : variable "to_view" was declared but never referenced
-d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(424): warning : template parameter "T" may not be used in an elaborated type specifier
-d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(426): warning : template parameter "T" may not be used in an elaborated type specifier
-D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(577): warning : statement is unreachable
+D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(266): warning : variable "to_view" was declared but never referenced
+d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(425): warning : template parameter "T" may not be used in an elaborated type specifier
+d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(427): warning : template parameter "T" may not be used in an elaborated type specifier
+D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(603): warning : statement is unreachable
   kernel.cu
 d:\workspace\si\rt_cuda\rt_cuda\visualizer.cuh(97): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(436): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
-D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(436): warning C4267: 'initializing': conversion from 'size_t' to 'const unsigned int', possible loss of data
-D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(549): warning C4305: '=': truncation from 'double' to 'float'
-D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(554): warning C4305: '=': truncation from 'double' to 'float'
-d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(440): warning C4305: 'return': truncation from 'double' to 'doble'
+D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(463): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(463): warning C4267: 'initializing': conversion from 'size_t' to 'const unsigned int', possible loss of data
+D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(576): warning C4305: '=': truncation from 'double' to 'float'
+D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(581): warning C4305: '=': truncation from 'double' to 'float'
+d:\workspace\si\rt_cuda\rt_cuda\camera.cuh(69): warning C4305: 'argument': truncation from 'double' to 'const floot'
+          with
+          [
+              floot=float
+          ]
+  d:\workspace\si\rt_cuda\rt_cuda\camera.cuh(67): note: while compiling class template member function 'void rt::Camera<float,unsigned int>::set_direction(const math::Vector<3,float> &)'
+  D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(584): note: see reference to function template instantiation 'void rt::Camera<float,unsigned int>::set_direction(const math::Vector<3,float> &)' being compiled
+  D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(446): note: see reference to class template instantiation 'rt::Camera<float,unsigned int>' being compiled
+d:\workspace\si\rt_cuda\rt_cuda\raytriangleintersection.cuh(15): warning C4305: 'return': truncation from 'double' to 'precision'
+          with
+          [
+              precision=float
+          ]
+  d:\workspace\si\rt_cuda\rt_cuda\raytriangleintersection.cuh(15): note: while compiling class template member function 'precision rt::RayTriangleIntersection<precision>::epsilon(void)'
+          with
+          [
+              precision=float
+          ]
+  d:\workspace\si\rt_cuda\rt_cuda\raytriangleintersection.cuh(71): note: see reference to function template instantiation 'precision rt::RayTriangleIntersection<precision>::epsilon(void)' being compiled
+          with
+          [
+              precision=float
+          ]
+  d:\workspace\si\rt_cuda\rt_cuda\castedray.cuh(16): note: see reference to class template instantiation 'rt::RayTriangleIntersection<precision>' being compiled
+          with
+          [
+              precision=float
+          ]
+  D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(253): note: see reference to class template instantiation 'rt::CastedRay<float>' being compiled
+d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(441): warning C4305: 'return': truncation from 'double' to 'doble'
           with
           [
               doble=float
           ]
-  d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(462): note: see reference to function template instantiation 'doble math::my_atan<T>(doble,doble)' being compiled
+  d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(463): note: see reference to function template instantiation 'doble math::my_atan<T>(doble,doble)' being compiled
           with
           [
               doble=float,
               T=float
           ]
-  D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(482): note: see reference to function template instantiation 'math::Vector<3,float> math::spherical_coordianates<float>(const math::Vector<3,float> &)' being compiled
-d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(446): warning C4305: '-=': truncation from 'double' to 'doble'
+  D:/Workspace/SI/RT_CUDA/RT_CUDA/kernel.cu(509): note: see reference to function template instantiation 'math::Vector<3,float> math::spherical_coordianates<float>(const math::Vector<3,float> &)' being compiled
+d:\workspace\si\rt_cuda\rt_cuda\vector.cuh(447): warning C4305: '-=': truncation from 'double' to 'doble'
           with
           [
               doble=float
