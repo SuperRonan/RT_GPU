@@ -417,8 +417,8 @@ using Vector3f = math::Vector3f;
 void test_ray_tracing()
 {
 	const unsigned int k = 1;
-	const unsigned int width = 1600;// 1024 * k;
-	const unsigned int height = 900;// 540 * k;
+	const unsigned int width =  1024 * k;
+	const unsigned int height =  540 * k;
 	const unsigned int num_pixel = width * height;
 
 	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -607,6 +607,7 @@ void test_ray_tracing()
 
 int main(int argc, char ** argv)
 {
+
 	test_ray_tracing();
 
 

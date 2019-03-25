@@ -25,8 +25,9 @@ namespace math
 
 		__device__ __host__ Vector()
 		{}
-
-		__device__ __host__ Vector(T const& def)
+		
+		template <class Q>
+		__device__ __host__ Vector(Q const& def)
 		{
 			//std::fill(m_data, m_data + N, def);
 			for (uint i = 0; i < N; ++i)
@@ -44,8 +45,6 @@ namespace math
 				m_data[i] = data[i];
 			}
 		}
-
-
 
 		template <class Q, class R>
 		__device__ __host__ Vector(Q q, R r)
@@ -90,6 +89,9 @@ namespace math
 				m_data[i] = other[i];
 			}
 		}
+
+
+
 
 		template <class Q>
 		__device__ __host__ Vector & operator=(Vector<N, Q> const& other)
@@ -349,9 +351,9 @@ namespace math
 		}
 
 
-		__device__ __host__ Vector operator-()const
+		__device__ __host__ Vector<N, T> operator-()const
 		{
-			Vector res;
+			Vector<N, T> res;
 			for (uint i = 0; i < N; ++i)
 			{
 				res[i] = -m_data[i];
@@ -359,6 +361,66 @@ namespace math
 			return res;
 		}
 
+
+
+		template <class Q>
+		__device__ __host__ Vector<N, T>& min_equal(Vector<N, Q> const& other)
+		{
+			for (uint i = 0; i < N; ++i)
+			{
+				if (m_data[i] > other[i])	m_data[i] = other[i];
+			}
+			return *this;
+		}
+
+		template <class Q>
+		__device__ __host__ Vector<N, T>& max_equal(Vector<N, Q> const& other)
+		{
+			for (uint i = 0; i < N; ++i)
+			{
+				if (m_data[i] < other[i])	m_data[i] = other[i];
+			}
+			return *this;
+		}
+
+		template <class Q>
+		__device__ __host__ Vector<N, T> min(Vector<N, Q> const& other)const
+		{
+			Vector<N, T> res = *this;
+			res.min_equal(other);
+			return res;
+		}
+
+		template <class Q>
+		__device__ __host__ Vector<N, T> max(Vector<N, Q> const& other)const
+		{
+			Vector<N, T> res = *this;
+			res.max_equal(other);
+			return res;
+		}
+
+
+
+		__device__ __host__ __forceinline__ inline T sum()const noexcept
+		{
+			T res = m_data[0];
+			for (uint i = 1; i < N; ++i)
+			{
+				res += m_data[i];
+			}
+			return res;
+		}
+
+
+		__device__ __host__ __forceinline__ inline T prod()const noexcept
+		{
+			T res = m_data[0];
+			for (uint i = 1; i < N; ++i)
+			{
+				res *= m_data[i];
+			}
+			return res;
+		}
 		
 	};
 
