@@ -412,8 +412,6 @@ void update(bool * keys)
 }
 
 
-using Vector3f = math::Vector3f;
-
 void test_ray_tracing()
 {
 	const unsigned int k = 1;
@@ -428,10 +426,10 @@ void test_ray_tracing()
 	Visualizer visu(width, height);
 
 	rt::Camera<float, unsigned int> cam(
-		Vector3f::make_vector(2, -4, 1),//position
-		Vector3f::make_vector(0, 1, 0),//front
-		Vector3f::make_vector(1, 0, 0),//right
-		Vector3f::make_vector(0, 0, 1),//up
+		math::Vector3f(2, -4, 1),//position
+		math::Vector3f(0, 1, 0),//front
+		math::Vector3f(1, 0, 0),//right
+		math::Vector3f(0, 0, 1),//up
 		0.5, (float)width / (float)height, 1, width, height);
 
 
@@ -469,7 +467,7 @@ void test_ray_tracing()
 	unsigned int lights_size = 1;
 	rt::Light<float> * lights = new rt::Light<float>[lights_size];
 
-	lights[0] = rt::Light<float>(math::Vector3f::make_vector(-3, -1, 3), rt::RGBColorf(10, 10, 0));
+	lights[0] = rt::Light<float>(math::Vector3f(-3, -1, 3), rt::RGBColorf(10, 10, 0));
 
 	rt::Light<float> * d_lights;
 
@@ -490,7 +488,7 @@ void test_ray_tracing()
 	
 	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 
-	Vector3f dir_sphere = math::spherical_coordianates(cam.m_front);
+	math::Vector3f dir_sphere = math::spherical_coordianates<float>(cam.m_front);
 	float forward, upward, rightward, inclination, azimuth;
 	const float speed = 2;
 	const float angle_speed = 2;

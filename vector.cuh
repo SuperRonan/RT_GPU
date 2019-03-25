@@ -246,6 +246,7 @@ namespace math
 
 
 		
+		/*
 		__device__ __host__ static Vector<2, T> make_vector(T const& x, T const& y)
 		{
 			Vector<2, T> res;
@@ -272,7 +273,7 @@ namespace math
 			res.m_data[3] = w;
 			return res;
 		}
-
+		*/
 
 
 		__device__ __host__ T norm2()const

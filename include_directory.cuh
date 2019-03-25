@@ -7,7 +7,7 @@
 #include "triangle.cuh"
 #include "raytriangleintersection.cuh"
 #include "RGBColor.cuh"
-#include "fragmentinfo.cuh"
+#include "hit.cuh"
 #include "light.cuh"
 #include "geometry.cuh"
 #include "matrix.cuh"

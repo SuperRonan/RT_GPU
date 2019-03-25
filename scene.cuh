@@ -34,7 +34,18 @@ namespace rt
 
 		uint max_depth = 5;
 
+
+		RGBColor<floot> * d_fb;
+
 	public:
+
+
+
+
+
+
+
+		void render()
 
 
 
