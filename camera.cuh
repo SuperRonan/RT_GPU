@@ -9,14 +9,14 @@
 
 namespace rt
 {
-	template <class precision=float, class uint=unsigned int>
+	template <class precision=float>
 	class Camera
 	{
 	public:
 
 		using Vector3p = math::Vector3<precision>;
 
-		uint m_w, m_h;
+		//uint m_w, m_h;
 
 		Vector3p m_position;
 
@@ -37,9 +37,7 @@ namespace rt
 
 	public:
 
-		__device__ __host__ Camera(Vector3p const& position, Vector3p const& direction, Vector3p const& right, Vector3p const& up, precision plane_dist, precision plane_width, precision plane_height, uint w, uint h) :
-			m_w(w),
-			m_h(h),
+		__device__ __host__ Camera(Vector3p const& position, Vector3p const& direction, Vector3p const& right, Vector3p const& up, precision plane_dist, precision plane_width, precision plane_height) :
 			m_position(position),
 			m_front(direction),
 			m_right(right),
@@ -49,12 +47,14 @@ namespace rt
 			m_plane_height(plane_height)
 		{}
 
+		/*
 		__device__ __host__ Ray<precision> get_ray(uint i, uint j)const
 		{
 			precision u = (precision)i / (precision)m_w;
 			precision v = (precision)j / (precision)m_h;
 			return get_ray(u, v);
 		}
+		*/
 
 		__device__ __host__ Ray<precision> get_ray(precision u, precision v)const
 		{

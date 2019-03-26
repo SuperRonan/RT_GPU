@@ -28,7 +28,7 @@ namespace rt
 			source(p_source),
 			m_direction(p_dir),
 			m_inv(!p_dir),
-			m_sign(Vector3p::make_vector(p_dir[0] < 0, p_dir[1] < 0, p_dir[2] < 0))
+			m_sign(Vector3p(p_dir[0] < 0, p_dir[1] < 0, p_dir[2] < 0))
 		{}
 
 		//Is the copy constructor necessary?

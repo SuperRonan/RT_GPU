@@ -10,7 +10,19 @@
 #include <stack>
 #include <thread>
 
-#include "include_directory.cuh"
+#include "triangle.cuh"
+#include "castedray.cuh"
+#include "camera.cuh"
+#include "vector.cuh"
+#include "triangle.cuh"
+#include "raytriangleintersection.cuh"
+#include "RGBColor.cuh"
+#include "hit.cuh"
+#include "light.cuh"
+#include "geometry.cuh"
+#include "matrix.cuh"
+#include "hit.cuh"
+
 #include "thrust/device_vector.h"
 
 #include "visualizer.cuh"
@@ -247,16 +259,16 @@ void print_image(out_t & out, const uint8_t * buffer, size_t width, size_t heigh
 
 
 template <class floot>
-__device__ __host__ rt::RGBColor<floot> phong(rt::FragIn<floot> const& v2f, const rt::Light<floot> * lights, unsigned int lights_size, rt::RGBColor<floot> const& ambient=rt::RGBColor<floot>(0))
+__device__ __host__ rt::RGBColor<floot> phong(rt::Hit<floot> const& hit, const rt::Light<floot> * lights, unsigned int lights_size, rt::RGBColor<floot> const& ambient=rt::RGBColor<floot>(0))
 {
 	//return v2f.screen_uv;
 	rt::RGBColor<floot> res = ambient;
 	
-	math::Vector3<floot> const& normal = v2f.normal_world;
-	math::Vector3<floot> const& to_view = v2f.to_view_world;
-	math::Vector3<floot> const& position = v2f.inter_point_world;
+	math::Vector3<floot> const& normal = hit.normal;
+	math::Vector3<floot> const& to_view = hit.to_view;
+	math::Vector3<floot> const& position = hit.point;
 
-	rt::RGBColor<floot> const& diffuse = v2f.color;
+	rt::RGBColor<floot> const& diffuse = hit.color;
 
 	for (unsigned int i = 0; i < lights_size; ++i)
 	{
@@ -284,7 +296,7 @@ __device__ __host__ rt::RGBColor<floot> send_ray(rt::Ray<floot> const& ray, cons
 
 
 
-__global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width, const unsigned int height, const rt::Camera<float, unsigned int> * cam, const rt::Triangle<float> * scene, const unsigned int scene_size, const rt::Light<float> * lights, const unsigned int lights_size)
+__global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width, const unsigned int height, const rt::Camera<float> * cam, const rt::Triangle<float> * scene, const unsigned int scene_size, const rt::Light<float> * lights, const unsigned int lights_size)
 {
 	const unsigned int i = threadIdx.x + blockIdx.x * blockDim.x;
 	const unsigned int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -309,7 +321,7 @@ __global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width
 			//pixel = rt::RGBColorf(inter.u(), 0.1f, inter.v());
 			//return;
 			
-			rt::FragIn<float> fi(cray, inter, { u, v });
+			rt::Hit<float> fi(cray, inter);
 			pixel = phong(fi, lights, lights_size);
 			
 		}
@@ -411,7 +423,7 @@ void update(bool * keys)
 	}
 }
 
-
+/*
 void test_ray_tracing()
 {
 	const unsigned int k = 1;
@@ -435,12 +447,6 @@ void test_ray_tracing()
 
 	std::vector<rt::Triangle<float>> scene_triangles_vec;
 	scene_triangles_vec = cornell(rt::RGBColorf(0.5), rt::RGBColorf(1, 0, 0), rt::RGBColorf(0, 1, 0));
-
-	/*
-	scene_triangles_vec = { rt::Triangle<float>(Vector3f::make_vector(0, 0, 2), Vector3f::make_vector(-1, 0, 1), Vector3f::make_vector(1, 0, 1), rt::RGBColor<float>(1, 0, 0)) };
-	auto square_vec = square<float>(rt::RGBColorf(0, 1, 0), 2);
-	scene_triangles_vec.insert(scene_triangles_vec.cend(), square_vec.cbegin(), square_vec.cend());
-	*/
 
 	const unsigned int scene_size = scene_triangles_vec.size();
 	rt::Triangle<float> * scene_triangles_tab = new rt::Triangle<float>[scene_size];
@@ -602,11 +608,13 @@ void test_ray_tracing()
 
 }
 
+*/
+
 
 int main(int argc, char ** argv)
 {
 
-	test_ray_tracing();
+	//test_ray_tracing();
 
 
 

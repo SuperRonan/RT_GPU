@@ -3,7 +3,8 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-#include "include_directory.cuh"
+#include "vector.cuh"
+#include "RGBColor.cuh"
 
 namespace rt
 {
