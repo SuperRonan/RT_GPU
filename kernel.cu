@@ -22,6 +22,7 @@
 #include "geometry.cuh"
 #include "matrix.cuh"
 #include "hit.cuh"
+#include "material.cuh"
 
 #include "thrust/device_vector.h"
 
