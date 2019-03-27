@@ -43,7 +43,7 @@ namespace rt
 
 		void send_to_device()
 		{
-
+			realloc
 		}
 
 	};
