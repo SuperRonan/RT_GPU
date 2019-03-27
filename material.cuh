@@ -5,6 +5,7 @@
 
 #include "RGBColor.cuh"
 #include "ray.cuh"
+#include "alias.h"
 
 
 namespace rt
@@ -43,7 +44,7 @@ namespace rt
 
 
 
-		//__device__ __host__ virtual RGBColor<T> shader(Ray<T> const& ray, Hit<T> const& hit)
+		__device__ __host__ virtual RGBColor<T> shader(Ray<T> const& ray, Hit<T> const& hit, LightStack<T> const& lights, RGBColor<T> const& ambiant)const = 0;
 
 	};
 }

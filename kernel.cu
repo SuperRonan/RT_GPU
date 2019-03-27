@@ -18,7 +18,7 @@
 #include "raytriangleintersection.cuh"
 #include "RGBColor.cuh"
 #include "hit.cuh"
-#include "light.cuh"
+#include "point_light.cuh"
 #include "geometry.cuh"
 #include "matrix.cuh"
 #include "hit.cuh"
@@ -260,7 +260,7 @@ void print_image(out_t & out, const uint8_t * buffer, size_t width, size_t heigh
 
 
 template <class floot>
-__device__ __host__ rt::RGBColor<floot> phong(rt::Hit<floot> const& hit, const rt::Light<floot> * lights, unsigned int lights_size, rt::RGBColor<floot> const& ambient=rt::RGBColor<floot>(0))
+__device__ __host__ rt::RGBColor<floot> phong(rt::Hit<floot> const& hit, const rt::PointLight<floot> * lights, unsigned int lights_size, rt::RGBColor<floot> const& ambient=rt::RGBColor<floot>(0))
 {
 	//return v2f.screen_uv;
 	rt::RGBColor<floot> res = ambient;
@@ -297,7 +297,7 @@ __device__ __host__ rt::RGBColor<floot> send_ray(rt::Ray<floot> const& ray, cons
 
 
 
-__global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width, const unsigned int height, const rt::Camera<float> * cam, const rt::Triangle<float> * scene, const unsigned int scene_size, const rt::Light<float> * lights, const unsigned int lights_size)
+__global__ void compute_scene(rt::RGBColor<float> * fb, const unsigned int width, const unsigned int height, const rt::Camera<float> * cam, const rt::Triangle<float> * scene, const unsigned int scene_size, const rt::PointLight<float> * lights, const unsigned int lights_size)
 {
 	const unsigned int i = threadIdx.x + blockIdx.x * blockDim.x;
 	const unsigned int j = threadIdx.y + blockIdx.y * blockDim.y;

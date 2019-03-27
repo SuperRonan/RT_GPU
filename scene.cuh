@@ -3,7 +3,8 @@
 #include <cuda.h>
 #include "triangle.cuh"
 #include <thrust/device_vector.h>
-#include "light.cuh"
+#include "point_light.cuh"
+#include "directional_light.cuh"
 #include "RGBColor.cuh"
 #include "camera.cuh"
 #include "AABB.cuh"
@@ -27,7 +28,7 @@ namespace rt
 		RGBColor<floot> m_ambient = 0;
 
 		uint d_world_lights_size, d_world_lights_capacity;
-		Light<floot> * d_world_lights;
+		PointLight<floot> * d_world_lights;
 
 		Camera<floot> m_camera, * d_camera;
 
@@ -76,7 +77,7 @@ namespace rt
 				clean();
 			}
 			
-			error = cudaMalloc((void**)d_world_lights, d_world_lights_capacity * sizeof(Light<floot>));
+			error = cudaMalloc((void**)d_world_lights, d_world_lights_capacity * sizeof(PointLight<floot>));
 			if (error != cudaSuccess)
 			{
 				show_error(error);
@@ -103,6 +104,10 @@ namespace rt
 			assert(d_camera != nullptr);
 			cudaMemcpy(d_camera, &m_camera, sizeof(Camera<floot>), cudaMemcpyHostToDevice);
 		}
+
+
+
+
 
 
 		void render(RGBColor<floot> * d_fb, uint width, uint height)const
