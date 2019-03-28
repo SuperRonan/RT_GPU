@@ -17,8 +17,8 @@ namespace rt
 
 		Vector3f m_bounds[2];
 
-		static constexpr min_val = std::numeric_limits<floot>::lowest();
-		static constexpr max_val = std::numeric_limits<floot>::max();
+		static constexpr floot min_val = std::numeric_limits<floot>::lowest();
+		static constexpr floot max_val = std::numeric_limits<floot>::max();
 
 	public:
 
@@ -68,13 +68,13 @@ namespace rt
 		template <class doble>
 		__device__ __host__ __forceinline__ inline bool operator==(AABB<doble> const& other)const noexcept
 		{
-			return min() == other.min() && max == other.max();
+			return min() == other.min() && max() == other.max();
 		}
 
 		template <class doble>
 		__device__ __host__ __forceinline__ inline bool operator!=(AABB<doble> const& other)const noexcept
 		{
-			return min() != other.min() || max != other.max();
+			return min() != other.min() || max() != other.max();
 		}
 
 		template <class doble>

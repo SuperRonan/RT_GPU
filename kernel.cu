@@ -24,7 +24,8 @@
 #include "hit.cuh"
 #include "material.cuh"
 
-#include "thrust/device_vector.h"
+
+#include "buffer.cuh"
 
 #include "visualizer.cuh"
 #include <SDL.h>
@@ -617,6 +618,9 @@ int main(int argc, char ** argv)
 
 	//test_ray_tracing();
 
+	rt::Buffer<int, unsigned int> buffer;
+
+	
 
 
 	return 0;

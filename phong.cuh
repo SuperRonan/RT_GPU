@@ -80,6 +80,10 @@ namespace rt
 			return res * tex_color;
 		}
 
+		virtual __device__ __host__ unsigned int memory_size()const
+		{
+			return sizeof(Phong<floot>);
+		}
 
 	};
 }

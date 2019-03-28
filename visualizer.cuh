@@ -70,14 +70,11 @@ protected:
 
 	uint8_t * d_ucfb;
 
-	Visualizer()
-	{}
+	Visualizer() = delete;
 
-	Visualizer(Visualizer const& other)
-	{}
+	Visualizer(Visualizer const& other) = delete;
 
-	Visualizer(Visualizer && other)
-	{}
+	Visualizer(Visualizer && other) = delete;
 
 public:
 

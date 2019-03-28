@@ -46,5 +46,12 @@ namespace rt
 
 		__device__ __host__ virtual RGBColor<T> shader(Ray<T> const& ray, Hit<T> const& hit, LightStack<T> const& lights, RGBColor<T> const& ambiant)const = 0;
 
+
+		//could be static ?
+		__device__ __host__ virtual unsigned int memory_size()const
+		{
+			return sizeof(Material<T>);
+		}
+
 	};
 }

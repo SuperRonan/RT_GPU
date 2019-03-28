@@ -8,13 +8,84 @@
 #include "RGBColor.cuh"
 #include "camera.cuh"
 #include "AABB.cuh"
-namespace kernel
-{
-	
-}
+#include "material_library.cuh"
+
+
+
 
 namespace rt
 {
+
+
+	namespace kernel
+	{
+
+		inline __device__ __host__ void index_to_coords(unsigned int index, unsigned int w, unsigned int h, unsigned int & i, unsigned int & j)
+		{
+			i = index / w;
+			j = index % w;
+		}
+
+
+		inline __device__ __host__ unsigned int coords_to_index(unsigned int i, unsigned int j, unsigned int w, unsigned int h)
+		{
+			return i * w + j;
+		}
+
+
+		template <class floot=float, class uint = unsigned int>
+		__device__ __host__ void intersection_full(
+			const Ray<floot> & ray)
+		{
+			
+		}
+
+
+
+
+		template <class floot=float, class uint = unsigned int>
+		__device__ __host__ RGBColor<floot> send_ray(
+			Ray<floot> const& ray,
+			const Material<floot> ** material_library,
+			const Triangle<floot> * triangles,
+			const uint trianles_size,
+			const PointLight<floot> * plights,
+			const uint plights_size
+		)
+		{
+
+		}
+
+
+		template <class floot=float, class uint=unsigned int>
+		__global__ void render(
+			RGBColor<floot> * frame_buffer,
+			const uint width, const uint height,
+			const Camera<floot> * camera,
+			const Material<floot> ** material_library,
+			const Triangle<floot> * triangles,
+			const uint triangle_size,
+			const PointLight<floot> * plights,
+			const uint plights_size
+		)
+		{
+			const uint i = threadIdx.x + blockIdx.x * blockDim.x;
+			const uint j = threadIdx.y + blockIdx.y * blockDim.y;
+			if (i < height & j < width)
+			{
+				const uint index = coords_to_index(i, j, width, height);
+				const floot v = ((floot)i) / (floot)height;
+				const floot u = floot(j) / floot(width);
+
+				Ray<floot> ray = camera->get_ray(u, v);
+
+				RGBColor<floot> res = send_ray(ray, material_library, triangles, triangle_size, plights, plights_size);
+
+				frame_buffer[index] = res;
+		}
+	}
+
+
 	template <class floot, class uint=unsigned int>
 	class Scene
 	{
@@ -39,6 +110,7 @@ namespace rt
 		uint max_depth = 5;
 
 
+		MaterialLibrary<floot, uint> m_mat_lib;
 
 
 
@@ -116,6 +188,21 @@ namespace rt
 		}
 
 
+		const MaterialLibrary<floot, uint> & material_library()const
+		{
+			return m_mat_lib;
+		}
 
+		
+		MaterialLibrary<floot, uint> & material_library()
+		{
+			return m_mat_lib;
+		}
+
+
+		void add_material(Material<floot> * mat)
+		{
+			m_mat_lib.add_material(mat);
+		}
 	};
 }
