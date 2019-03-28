@@ -25,7 +25,7 @@
 #include "material.cuh"
 
 
-#include "buffer.cuh"
+#include "dual_buffer.cuh"
 
 #include "visualizer.cuh"
 #include <SDL.h>
@@ -618,7 +618,7 @@ int main(int argc, char ** argv)
 
 	//test_ray_tracing();
 
-	rt::Buffer<int, unsigned int> buffer;
+	rt::DualBuffer<int, unsigned int> buffer;
 
 	
 

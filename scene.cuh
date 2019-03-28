@@ -9,7 +9,7 @@
 #include "camera.cuh"
 #include "AABB.cuh"
 #include "material_library.cuh"
-
+#include "castedray.cuh"
 
 
 
@@ -34,10 +34,25 @@ namespace rt
 
 
 		template <class floot=float, class uint = unsigned int>
-		__device__ __host__ void intersection_full(
-			const Ray<floot> & ray)
+		__device__ __host__ bool intersection_full(
+			Hit<floot> & res,
+			const Ray<floot> & ray,
+			const Triangle<floot> * triangles,
+			const uint triangles_size
+			)
 		{
-			
+			CastedRay<floot> cray = ray;
+			for (unit i = 0; i < triangles_size, ++i)
+			{
+				cray.intersect(triangles[i]);
+			}
+			bool b = false;
+			if (cray.intersection().valid())
+			{
+				res.construct(ray, cray.intersection());
+				b = true;
+			}
+			return b;
 		}
 
 
@@ -50,10 +65,21 @@ namespace rt
 			const Triangle<floot> * triangles,
 			const uint trianles_size,
 			const PointLight<floot> * plights,
-			const uint plights_size
+			const uint plights_size,
+			const uint max_depth,
+			const uint depth=0
 		)
 		{
-
+			RGBColor<floot> res = 0;
+			if (depth <= max_depth)
+			{
+				Hit<floot> hit;
+				if (intersection_full(hit, ray, triangles, trianles_size))
+				{
+					res = hit.color;
+				}
+			}
+			return res;
 		}
 
 
@@ -66,7 +92,8 @@ namespace rt
 			const Triangle<floot> * triangles,
 			const uint triangle_size,
 			const PointLight<floot> * plights,
-			const uint plights_size
+			const uint plights_size,
+			const uint max_depth
 		)
 		{
 			const uint i = threadIdx.x + blockIdx.x * blockDim.x;
@@ -82,6 +109,7 @@ namespace rt
 				RGBColor<floot> res = send_ray(ray, material_library, triangles, triangle_size, plights, plights_size);
 
 				frame_buffer[index] = res;
+			}
 		}
 	}
 

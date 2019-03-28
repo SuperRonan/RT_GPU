@@ -17,7 +17,7 @@ namespace rt
 
 
 		////////////////////////////////////////////////////
-		// TODO, a cuda mallocator?
+		// TODO, a custom cuda mallocator?
 		// TODO or different buffers for the different types of materials? (bas idea if it means to add support for the new type of mat in the library), 
 		// but it can be possible with template ... types
 		////////////////////////////////////////////////////

@@ -42,7 +42,10 @@ namespace rt
 			return m_emissive;
 		}
 
-
+		__device__ __host__ __forceinline bool is_emisive()const noexcept
+		{
+			return !emissive().is_black();
+		}
 
 		__device__ __host__ virtual RGBColor<T> shader(Ray<T> const& ray, Hit<T> const& hit, LightStack<T> const& lights, RGBColor<T> const& ambiant)const = 0;
 
