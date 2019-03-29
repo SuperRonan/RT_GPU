@@ -142,15 +142,24 @@ namespace rt
 
 
 
-		void show_error(cudaError_t const& error)const
-		{
 
+		void clean_buffers()
+		{
+			cudaError_t error;
+			error = cudaFree(d_world_lights);
+			if (error != cudaSuccess)
+			{
+				std::cerr << "Error, could not free the light buffer!" << std::endl;
+				std::cerr << error << std::endl;
+			}
+
+			d_world_lights = nullptr;
+			d_world_lights_size = 0;
 		}
 
-
-		void clean()
+		void clean_all()
 		{
-
+			clean_buffers();
 		}
 
 
@@ -173,22 +182,22 @@ namespace rt
 			error = cudaMalloc((void**)d_world_triangles, d_world_triangles_capacity * sizeof(Triangle<floot>));
 			if (error != cudaSuccess)
 			{
-				show_error(error);
-				clean();
+				std::cerr << "Error, Could not create the triangle buffer on the device" << std::endl;
+				std::cerr << error << std::endl;
 			}
 			
 			error = cudaMalloc((void**)d_world_lights, d_world_lights_capacity * sizeof(PointLight<floot>));
 			if (error != cudaSuccess)
 			{
-				show_error(error);
-				clean();
+				std::cerr << "Error, Could not create the lights buffer on the device" << std::endl;
+				std::cerr << error << std::endl;
 			}
 
 			error = cudaMalloc((void**)d_camera, sizeof(Camera<floot>));
 			if (error != cudaSuccess)
 			{
-				show_error(error);
-				clean();
+				std::cerr << "Error, Could not create the camera buffer on the device" << std::endl;
+				std::cerr << error << std::endl;
 			}
 
 			send_camera_to_device();
@@ -196,12 +205,17 @@ namespace rt
 
 
 
+		~Scene()
+		{
+			clean_all();
+		}
 
 
 
 		void send_camera_to_device()
 		{
 			assert(d_camera != nullptr);
+			//maybe check the error
 			cudaMemcpy(d_camera, &m_camera, sizeof(Camera<floot>), cudaMemcpyHostToDevice);
 		}
 
