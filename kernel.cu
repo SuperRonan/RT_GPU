@@ -23,6 +23,7 @@
 #include "matrix.cuh"
 #include "hit.cuh"
 #include "material.cuh"
+#include "scene.cuh"
 
 
 #include "dual_buffer.cuh"
@@ -618,9 +619,12 @@ int main(int argc, char ** argv)
 
 	//test_ray_tracing();
 
-	rt::DualBuffer<int, unsigned int> buffer;
+	rt::Scene<> scene;
 
-	
+
+	int * p;
+	cudaMalloc((void**)&p, 0);
+	std::cout << p;
 
 
 	return 0;

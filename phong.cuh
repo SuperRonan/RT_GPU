@@ -63,7 +63,7 @@ namespace rt
 
 			const RGBColorf tex_color = 1; // hasTexture() ? getTexture().safe_pixel(hit.tex_uv) : 1;
 
-			const Math::Vector3f & reflected = hit.reflected;
+			const Vector3f & reflected = hit.reflected;
 			for (size_t i = 0; i < lights.size(); ++i)
 			{
 				const DirectionalLight<floot> & l = lights[i];

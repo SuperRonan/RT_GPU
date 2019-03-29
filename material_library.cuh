@@ -65,7 +65,7 @@ namespace rt
 		}
 
 		//returns the index of the material in the buffer
-		uint add_material(Material * mat)
+		uint add_material(Materialf * mat)
 		{
 			m_materials.push_back(mat);
 			return m_materials.size() - 1;

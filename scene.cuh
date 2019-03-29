@@ -10,6 +10,7 @@
 #include "AABB.cuh"
 #include "material_library.cuh"
 #include "castedray.cuh"
+#include "utils.cuh"
 
 
 
@@ -42,7 +43,7 @@ namespace rt
 			)
 		{
 			CastedRay<floot> cray = ray;
-			for (unit i = 0; i < triangles_size, ++i)
+			for (uint i = 0; i < triangles_size; ++i)
 			{
 				cray.intersect(triangles[i]);
 			}
@@ -114,7 +115,7 @@ namespace rt
 	}
 
 
-	template <class floot, class uint=unsigned int>
+	template <class floot=float, class uint=unsigned int>
 	class Scene
 	{
 	protected:
@@ -169,7 +170,7 @@ namespace rt
 
 
 		Scene(uint triangles_default_capacity = 256, uint default_light_capacity = 16) :
-			d_world_lights_size(0),
+			d_world_triangles_size(0),
 			d_world_triangles_capacity(triangles_default_capacity),
 			d_world_triangles(nullptr),
 			d_world_lights_size(0),
@@ -221,13 +222,26 @@ namespace rt
 
 
 
+		bool device_loaded()const
+		{
+			return d_world_triangles != nullptr && (d_world_lights != nullptr || d_world_lights_size == 0);
+		}
 
 
 
 		void render(RGBColor<floot> * d_fb, uint width, uint height)const
 		{
-			
+			const dim3 block_size(4, 8);
+			const dim3 grid_size = dim3(utils::divide_up(height, block_size.x), utils::divide_up(width, block_size.y));
+			render(d_fb, width, height, block_size, grid_size);
 		}
+
+		void render(RGBColor<floot> d_fb, uint with, uint height, dim3 block_size, dim3 grid_size)const
+		{
+			assert(device_loaded());
+			kernel::render(d_fb, width, height, d_camera, m_mat_lib.device_buffer(), d_world_triangles, d_world_triangles_size, d_world_lights, d_world_lights_size);
+		}
+
 
 
 		const MaterialLibrary<floot, uint> & material_library()const

@@ -6,10 +6,11 @@
 #include "vector.cuh"
 #include "RGBColor.cuh"
 #include "raytriangleintersection.cuh"
+#include "geometry.cuh"
 
 namespace rt
 {
-	template <class floot>
+	template <class floot=float, class uint = unsigned int>
 	class Hit
 	{
 	protected:
@@ -20,10 +21,7 @@ namespace rt
 
 		floot z;
 
-		//TODO Add the material
-		RGBColor<floot> color;
-
-		const void * geometry;
+		const Geometry<floot, uint> * geometry;
 		const void * primitive;
 
 		Vector3f point;
@@ -47,7 +45,6 @@ namespace rt
 
 		__device__ __host__ Hit(Ray<floot> const& ray, RayTriangleIntersection<floot> const& rti) :
 			z(rti.t()),
-			color(rti.triangle()->color()),
 			geometry((const void *)rti.triangle()),
 			primitive((const void *)rti.triangle()),
 			point(rti.intersection_point()),
@@ -65,7 +62,6 @@ namespace rt
 		__device__ __host__ void construct(Ray<floot> const& ray, RayTriangleIntersection<floot> const& rti)
 		{
 			z = (rti.t());
-			color = (rti.triangle()->color());
 			geometry = ((const void *)rti.triangle());
 			primitive = ((const void *)rti.triangle());
 			point = (rti.intersection_point());

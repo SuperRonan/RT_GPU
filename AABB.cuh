@@ -22,8 +22,7 @@ namespace rt
 
 	public:
 
-		template <class doble, class flaot>
-		__device__ __host__ AABB(math::Vector3<doble> const& min = max_val, math::Vector3<flaot> const& max = min_val)
+		__device__ __host__ AABB(math::Vector3<floot> const& min = max_val, math::Vector3<floot> const& max = min_val)
 		{
 			m_bounds[0] = min;
 			m_bounds[1] = max;
