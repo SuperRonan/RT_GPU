@@ -622,10 +622,6 @@ int main(int argc, char ** argv)
 	rt::Scene<> scene;
 
 
-	int * p;
-	cudaMalloc((void**)&p, 0);
-	std::cout << p;
-
 
 	return 0;
 }
