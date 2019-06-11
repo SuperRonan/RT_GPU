@@ -6,7 +6,7 @@
 #include "vector.cuh"
 #include "RGBColor.cuh"
 #include "raytriangleintersection.cuh"
-#include "geometry.cuh"
+#include "geometry.h"
 
 namespace rt
 {
